@@ -13,7 +13,7 @@ import {
   Board,
   Led
 } from 'johnny-five';
-import {} from 'electron';
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -56,6 +56,7 @@ const createWindow = async () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
@@ -78,28 +79,58 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 /**
- * --funcion para probar la funcionalidad del SerialPort--
- * usa el ejemplo Led Blink de la libreria johnny-five
- * blkValue: es el tiempo en mislisegundos que durara el efecto
- * @param {number} blkValue 
+ * variables globales
  */
 
-let startBoard = (blkValue) => {
-  const board = new Board({
-    repl: false
-  });
-  board.on('ready', () => {
-    let led = new Led(13);
-    led.blink(blkValue);
-  });
+let myBoardManger; // variable global que almacena una instancia de board
+/**
+ *  este objeto maneja la instancias de la placa concectada
+ */
+class BoardManger {
+  constructor(){
+    this.board = null;
+  }
+  
+  loadBoard() {
+    try {
+      this.board = new Board({
+        repl: false,
+      });
+      return ('created success!');
+    } catch (error) {
+      return (`ocurrio un error: ${error}`);
+    }
+  }
+  startBoard(val){
+    console.log("desde funcion: ",val);
+    this.board.each(() => {
+      let led = new Led(13);
+      led.blink(val);
+    });
+  };
 }
 
+const createBoardMng = () => {
+  myBoardManger = new BoardManger();  // busca la placa al cargar la ventana principal
+}
+
+app.on('ready', createBoardMng);
+
 /**
- * pconeccion entre el main proccess y el renderer proccess
+ * coneccion entre el main proccess y el renderer proccess
  * usando las ipc API's de electron
  */
 
+ipcMain.on('init', (event, arg) => {
+  console.log(cont);
+  myBoardManger.startBoard(arg.value);
+  event.sender.send('init-reply', {
+    message: 'Ready',
+  });
+});
+
 ipcMain.on('start', (event, arg) => {
   console.log(arg.value);
-  startBoard(arg.value);
+  myBoardManger.loadBoard();
+  myBoardManger.startBoard(arg.value);
 });
