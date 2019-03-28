@@ -78,59 +78,86 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-/**
- * variables globales
- */
 
-let myBoardManger; // variable global que almacena una instancia de board
-/**
- *  este objeto maneja la instancias de la placa concectada
- */
-class BoardManger {
-  constructor(){
-    this.board = null;
-  }
-  
-  loadBoard() {
-    try {
-      this.board = new Board({
-        repl: false,
+let myBoard; // variable global que almacena una instancia de board
+let led;
+
+const loadBoard = (event) => {
+  if (myBoard !== Board) {
+    
+    myBoard = new Board({ repl: false });
+    if (!myBoard.isReady){
+      console.log('no conectada');
+      event.sender.send('init-reply', {
+        message: false,
       });
-      return ('created success!');
-    } catch (error) {
-      return (`ocurrio un error: ${error}`);
+    } else {
+      console.log('Recien creada!');
+      event.sender.send('init-reply', {
+        message: true,
+      });
+    }
+  } else {
+
+    myBoard.on('exit',()=>{
+      myBoard = null;
+    });
+    myBoard = new Board({ repl: false });
+    if (!myBoard.isReady){
+      console.log('no conectada');
+      event.sender.send('init-reply', {
+        message: false,
+      });
+    } else {
+      console.log('Reinstanciada!');
+      event.sender.send('init-reply', {
+        message: true,
+      });
     }
   }
-  startBoard(val){
-    console.log("desde funcion: ",val);
-    this.board.each(() => {
-      let led = new Led(13);
-      led.blink(val);
-    });
-  };
 }
 
-const createBoardMng = () => {
-  myBoardManger = new BoardManger();  // busca la placa al cargar la ventana principal
+const startBoard= (val)=>{
+  console.log("desde funcion: ",val);
+    console.log('is ready?:', myBoard.isReady);
+      if(myBoard.isReady){
+        led = new Led(13);
+        led.blink(val);
+        myBoard.loop(100, ()=>{
+          console.log(val);
+      });
+    } 
+  }
+
+const updateBoard= (val)=>{
+    console.log("updated to: ",val);
+      console.log('is ready?:', myBoard.isReady)
+      if(myBoard.isReady){
+        led.blink(val);
+        myBoard.loop(val, ()=>{
+          console.log(val);
+        });
+      } 
 }
-
-app.on('ready', createBoardMng);
-
+  
 /**
  * coneccion entre el main proccess y el renderer proccess
  * usando las ipc API's de electron
  */
 
 ipcMain.on('init', (event, arg) => {
-  console.log(cont);
-  myBoardManger.startBoard(arg.value);
-  event.sender.send('init-reply', {
-    message: 'Ready',
-  });
+  loadBoard(event);
 });
 
 ipcMain.on('start', (event, arg) => {
   console.log(arg.value);
-  myBoardManger.loadBoard();
-  myBoardManger.startBoard(arg.value);
+  startBoard(arg.value);
+});
+
+ipcMain.on('update', (event, arg) => {
+  console.log(arg.value);
+  updateBoard(arg.value);
+  event.sender.send('update-reply', {
+    message: 'updated',
+  });
 });
