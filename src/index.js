@@ -1,27 +1,25 @@
 import {
   app,
   BrowserWindow,
-  ipcMain
+  ipcMain,
 } from 'electron';
 import installExtension, {
-  REACT_DEVELOPER_TOOLS
+  REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
 import {
-  enableLiveReload
+  enableLiveReload,
 } from 'electron-compile';
 import {
   Board,
-  Led
+  Led,
 } from 'johnny-five';
-
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
-
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
-if (isDevMode) enableLiveReload({
+if(isDevMode) enableLiveReload({
   strategy: 'react-hmr'
 });
 
@@ -30,6 +28,8 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    frame: true,
+    titleBarStyle: 'hiddenInset',
   });
 
   // and load the index.html of the app.
@@ -144,6 +144,7 @@ const updateBoard= (val)=>{
  * coneccion entre el main proccess y el renderer proccess
  * usando las ipc API's de electron
  */
+
 
 ipcMain.on('init', (event, arg) => {
   loadBoard(event);

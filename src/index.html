@@ -11,10 +11,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {AppContainer} from 'react-hot-loader';
-
+import {BrowserRouter as Router} from 'react-router-dom';
 const render = () => {
   const App = require('./app').default;
-  ReactDOM.render(<AppContainer><App /></AppContainer>, document.getElementById('App'));
+  ReactDOM.render(<AppContainer><Router><App /></Router></AppContainer>, document.getElementById('App'));
 }
 
 render();

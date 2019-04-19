@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import { Route, Link, Switch, Redirect} from "react-router-dom";
 import { ipcRenderer } from 'electron';
-import Slider from '@material-ui/lab/Slider';
-import { indigo } from '@material-ui/core/colors';
-import { isNumber } from 'util';
 
-export default class App extends React.Component {
+import Login from './modules/login';
+import Dashboard from './modules/dashboard';
+import ErrorPage from './modules/error404';
+import Nav from './modules/nav';
+ipcRenderer.setMaxListeners(0);
+
+
+
+class App extends React.Component {
   
   constructor() {
     super();
@@ -13,8 +19,9 @@ export default class App extends React.Component {
     };
   }
 
-  initBoard() {
+  initBoard(){
     ipcRenderer.send('init');
+
     let plays=document.querySelector('.play');
     ipcRenderer.on('init-reply', (event, arg) => {
       if(arg.message){
@@ -47,25 +54,26 @@ export default class App extends React.Component {
   }
 }
 
-
   render() {
+    const { history } = this.props;
     const { value } = this.state;
+  
+
     return (
-    <div>
-      <h2><button onClick={() => this.initBoard()}>Load!</button></h2>
-      <h2><button onClick={() => this.startBoard()} className="play">Start Test</button></h2>
-      <form action="">
-        <input className="play" id="mls" onChange={() => this.handleChange()}  placeholder='milisecons' type="text"/>
-      </form>
-      <Slider
-        value ={value}
-        min={5}
-        max={200}
-        onChange = {() => console.log('Cambiè!')}
-      />
-      <p>Al presionar el boton el led empezara a parpadear a la velocidad indicada en
-        el archivo app.jsx
-      </p>
-    </div>);
+      <React.Fragment>
+       
+        <Nav/>
+        
+        <Switch>
+          <Route path="/" exact component={Login} />
+          <Route to="/dashboard" component={Dashboard} />
+          <Route component={ErrorPage} />
+        </Switch>
+       
+      </React.Fragment>
+      
+    );
   }
 }
+
+export default App;
