@@ -2,8 +2,7 @@ import React from 'react';
 import {withRouter} from 'react-router-dom';
 import { Paper, withStyles, Grid, TextField, Button, FormControlLabel, Checkbox } from '@material-ui/core';
 import { Face, Fingerprint } from '@material-ui/icons';
-import openSocket from 'socket.io-client';
-
+import SocketContext from '../../socket-context';
 
 
 const styles = theme => ({
@@ -23,14 +22,11 @@ const styles = theme => ({
 class Login extends React.Component {
   constructor(){
     super();
-    this.state={
-        user: '',
-        pass: '',
-        isLoged: true,
-        urlSocket: 'http://localhost:3000',
-        socket: null,
-    }
-    
+    this.state = {
+      user: '',
+      pass: '',
+    };
+
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChanges = this.handleChanges.bind(this);   
 
@@ -57,32 +53,37 @@ class Login extends React.Component {
   }
 
   handleSubmit(event) {
+    const { socket, history} = this.props;
     event.preventDefault();
-    let {socket}=this.state;
-    const {history}=this.props;
+    socket.connect();
     
     let {user, pass} = this.state;
     var data = {user, pass}
-    console.log("objeto a enviar",data);
     
-    socket.on('messages', function(res) {
-        console.log( res )
-      })
-    socket.emit('nuevo-mensaje', data);
-       
+    socket.emit('authentication', {username: user, password: pass });
+    socket.on('authenticated', function() {
+        // use the socket as usual
+        
+        history.push('/dashboard');
+    });
+
+    socket.on('unauthorized', function(err){
+        console.log("There was an error with the authentication:", err.message);
+      });
   }
+
 /**
- * Componen ifecycle 
+ * Component lifecycle 
  */
 
- componentDidMount(){
-    this.state.socket = openSocket.connect(this.state.urlSocket);
+  componentDidMount() {
+    
  }
 
-render() {
-    const { classes, history } = this.props;
+  render() {
+    const { classes, history, socket } = this.props;
     return (
-        <Paper className={classes.padding}>
+        <Paper className={classes.padding}> 
             <div className={classes.margin}>
                 <Grid container spacing={8} alignItems="flex-end">
                     <Grid item>
@@ -110,4 +111,10 @@ render() {
 }
 }
 
-export default withStyles(styles)(withRouter(Login));
+const NestedLoginWithSocket = props => (
+    <SocketContext.Consumer>
+    {socket => <Login {...props} socket={socket} />}
+    </SocketContext.Consumer>
+  )
+
+export default withStyles(styles)(withRouter(NestedLoginWithSocket));

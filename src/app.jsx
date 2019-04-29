@@ -1,14 +1,13 @@
-import React, { Fragment } from 'react';
-import { Route, Link, Switch, Redirect} from "react-router-dom";
+import React from 'react';
+import { Route, Switch} from "react-router-dom";
 import { ipcRenderer } from 'electron';
-
+import SocketContext from './socket-context';
 import Login from './modules/login';
 import Dashboard from './modules/dashboard';
 import ErrorPage from './modules/error404';
 import Nav from './modules/nav';
+import openSocket from 'socket.io-client';
 ipcRenderer.setMaxListeners(0);
-
-
 
 class App extends React.Component {
   
@@ -17,6 +16,8 @@ class App extends React.Component {
     this.state = {
       value: 20,
     };
+
+    console.log("context", this.context);
   }
 
   initBoard(){
@@ -56,20 +57,21 @@ class App extends React.Component {
 
   render() {
     const { history } = this.props;
-    const { value } = this.state;
-  
+    const socket = openSocket('http://localhost:3000');
 
     return (
       <React.Fragment>
-       
-        <Nav/>
         
-        <Switch>
-          <Route path="/" exact component={Login} />
-          <Route to="/dashboard" component={Dashboard} />
-          <Route component={ErrorPage} />
-        </Switch>
-       
+        <SocketContext.Provider value={socket} >
+          <Nav />
+          
+          <Switch>
+            <Route path="/" exact component={Login} />
+            <Route to="/dashboard" component={Dashboard} />
+            <Route component={ErrorPage} />
+          </Switch>
+        </SocketContext.Provider>
+
       </React.Fragment>
       
     );
