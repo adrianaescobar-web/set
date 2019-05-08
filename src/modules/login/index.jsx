@@ -53,7 +53,7 @@ class Login extends React.Component {
   }
 
   handleSubmit(event) {
-    const { socket, history} = this.props;
+    const { socket, history, location} = this.props;
     event.preventDefault();
     socket.connect();
     
@@ -104,6 +104,7 @@ class Login extends React.Component {
                 
                 <Grid container justify="center" style={{ marginTop: '10px' }}>
                     <Button className={classes.button}  variant="outlined" color="primary" style={{ textTransform: "none" }} onClick={this.handleSubmit}>Login</Button>
+                    <Button className={classes.button}  variant="outlined" color="primary" style={{ textTransform: "none" }} onClick={()=>{history.push('/Dashboard')}}>Pass</Button>
                 </Grid>
             </div>
         </Paper>

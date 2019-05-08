@@ -2,8 +2,10 @@
 import * as React from 'react';
 import {Link} from 'react-router-dom';
 import {withRouter } from 'react-router-dom';
-import SocketContext from '../../socket-context'
-type Props = {
+import SocketContext from '../../socket-context';
+import StateBar from './stateBar';
+import {ipcRenderer} from 'electron';
+type Props = { 
   
 };
 type State = {
@@ -20,8 +22,12 @@ class Dashboard extends React.Component<Props, State>{
     return (
       
       <div>
-        <button onClick={()=>{history.push('/'); 
+        <StateBar/>
+        <button onClick={()=>{
+          history.push('/'); 
           socket.disconnect(true)}}>Logout</button>
+        {/* <button onClick={()=>{
+          ipcRenderer.send('restart-board')}}>Restart arduino</button> */}
           Dashboard
       </div>
     );

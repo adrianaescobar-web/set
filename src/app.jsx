@@ -15,10 +15,13 @@ class App extends React.Component {
     super();
     this.state = {
       value: 20,
+      boardState: false,
     };
-
+    ipcRenderer.send('init');
     console.log("context", this.context);
   }
+
+ 
 
   initBoard(){
     ipcRenderer.send('init');
@@ -40,30 +43,16 @@ class App extends React.Component {
     });
   }
 
-  handleChange(){
-    let element=document.querySelector('#mls');
-    let val = parseInt(element.value);
-    if(isNaN(val)){
-      element.style = 'border: solid 1px red';
-    } else {
-      element.style ='border: solid 1px white';
-      console.log("Hollaa", val);
-      ipcRenderer.send('update', { value: val });
-      ipcRenderer.on('update-reply', (event, arg) => {
-      console.log(arg.message);
-    });
-  }
-}
-
+ 
   render() {
     const { history } = this.props;
     const socket = openSocket('http://localhost:3000');
-
+    
     return (
       <React.Fragment>
         
         <SocketContext.Provider value={socket} >
-          <Nav />
+          <Nav/>
           
           <Switch>
             <Route path="/" exact component={Login} />

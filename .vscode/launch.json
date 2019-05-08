@@ -7,14 +7,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Electron Main",
-            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
-            "windows": {
-              "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
-            },
-            // runtimeArgs will be passed directly to your Electron application
-            "runtimeArgs": ["--enable-logging"],
-            "cwd": "${workspaceFolder}"
-          }
+            "name": "Launch Program",
+            "program": "${workspaceFolder}\\\\"
+        }
     ]
 }

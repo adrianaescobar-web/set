@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import {withRouter } from 'react-router-dom';
-
+import SocketContext from '../../socket-context';
 
 const styles = {
   root: {
@@ -26,19 +26,23 @@ const styles = {
 };
 
 function Nav(props) {
-  const { classes, history, location } = props;
-  console.log("URL:", location.pathname);
+  const { classes, history, socket } = props;
+  
+  console.log("state:",socket.disconnected);
+  
+ 
   if(location.pathname.includes('index.html')){
     history.push('/');
-  }      
+  }
+
   return (
     <div>
      <AppBar position="static" >
         <Toolbar className={classes.root}>
           
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
+          {socket.connected&&<IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
             <MenuIcon />
-          </IconButton>
+          </IconButton>}
           <Typography variant="h6" color="inherit" className={classes.grow} align="center">
             IoT Plattform
           </Typography>
@@ -52,5 +56,11 @@ function Nav(props) {
 Nav.propTypes = {
     classes: PropTypes.object.isRequired,
 };
-  
-export default withStyles(styles)(withRouter(Nav));
+
+const NestedLoginWithSocket = props => (
+  <SocketContext.Consumer>
+  {socket => <Nav {...props} socket={socket} />}
+  </SocketContext.Consumer>
+)
+
+export default withStyles(styles)(withRouter(NestedLoginWithSocket));

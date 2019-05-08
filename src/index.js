@@ -1,18 +1,12 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-} from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
 import {
   enableLiveReload,
 } from 'electron-compile';
-import {
-  Board,
-  Led,
-} from 'johnny-five';
+import * as usb from 'usb';
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -29,7 +23,11 @@ const createWindow = async () => {
     width: 800,
     height: 600,
     frame: true,
-    titleBarStyle: 'hiddenInset',
+    
+    webPreferences: {
+      titleBarStyle: 'hiddenInset',
+      nodeIntegration: true,
+    }
   });
 
   // and load the index.html of the app.
@@ -78,87 +76,85 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+const five = require('johnny-five');
 
-let myBoard; // variable global que almacena una instancia de board
-let led;
+let globalBoard=null;
+let boardState = false;
 
-const loadBoard = (event) => {
-  if (myBoard !== Board) {
-    
-    myBoard = new Board({ repl: false });
-    if (!myBoard.isReady){
-      console.log('no conectada');
-      event.sender.send('init-reply', {
-        message: false,
-      });
-    } else {
-      console.log('Recien creada!');
-      event.sender.send('init-reply', {
-        message: true,
-      });
-    }
-  } else {
-
-    myBoard.on('exit',()=>{
-      myBoard = null;
-    });
-    myBoard = new Board({ repl: false });
-    if (!myBoard.isReady){
-      console.log('no conectada');
-      event.sender.send('init-reply', {
-        message: false,
-      });
-    } else {
-      console.log('Reinstanciada!');
-      event.sender.send('init-reply', {
-        message: true,
-      });
-    }
-  }
-}
-
-const startBoard= (val)=>{
-  console.log("desde funcion: ",val);
-    console.log('is ready?:', myBoard.isReady);
-      if(myBoard.isReady){
-        led = new Led(13);
-        led.blink(val);
-        myBoard.loop(100, ()=>{
-          console.log(val);
-      });
-    } 
-  }
-
-const updateBoard= (val)=>{
-    console.log("updated to: ",val);
-      console.log('is ready?:', myBoard.isReady)
-      if(myBoard.isReady){
-        led.blink(val);
-        myBoard.loop(val, ()=>{
-          console.log(val);
-        });
-      } 
-}
+let cloneObject=(obj)=>{
   
+  return Object.assign({}, obj);
+};
+
+var initBoard = () =>{
+  console.log('Iniciando');
+  globalBoard = new five.Board({repl: false});
+
+  globalBoard.on('ready', ()=>{
+    boardState = globalBoard.isReady;
+    console.log("board is ready", globalBoard);
+    console.log('board port 1:', globalBoard.port);
+    mainWindow.webContents.send('status', boardState);
+  });    
+};
+
+let restartConnection = (port)=>{
+  console.log('Reiniciando');
+  let portConnected = 'COM' + port;
+  globalBoard = null;
+  globalBoard = new five.Board({repl: false, port: portConnected });
+  
+  globalBoard.on('ready', ()=>{
+    boardState = globalBoard.isReady;
+    console.log("board is ready", globalBoard);
+    console.log('board port 1:', globalBoard.port);
+    mainWindow.webContents.send('status', boardState);
+  });    
+};
+
+initBoard();
+
+console.warn("board status", boardState);
+//console.warn("board port 2", globalBoard.port);
+
+usb.on('attach', function(device) {
+  
+  if (!boardState){
+    restartConnection(device.portNumbers[0]);
+  }
+   
+});
+
+ipcMain.on('get-state', (event, arg)=>{
+  event.returnValue = boardState;
+});
+
+/**
+ * Gestion del puerto USB
+ */
+
+usb.on('detach', function(device) {
+  const port = 'COM' + device.portNumbers[0];
+  console.log('port off:', device.portNumbers[0]);
+  console.log('board port:',globalBoard.port || undefined);
+  if(port===globalBoard.port || globalBoard.port===undefined){
+    globalBoard.emit('exit', () => {
+      console.log('desconectado'); 
+    });
+    boardState = false;
+    device.close();
+    mainWindow.webContents.send('status', boardState);
+  };
+ });
+
 /**
  * coneccion entre el main proccess y el renderer proccess
  * usando las ipc API's de electron
  */
 
 
-ipcMain.on('init', (event, arg) => {
-  loadBoard(event);
+ipcMain.on('restart-board', (event, arg) => {
+  console.log("curren boarState on main", boardState);
+  restartConnection();
 });
 
-ipcMain.on('start', (event, arg) => {
-  console.log(arg.value);
-  startBoard(arg.value);
-});
-
-ipcMain.on('update', (event, arg) => {
-  console.log(arg.value);
-  updateBoard(arg.value);
-  event.sender.send('update-reply', {
-    message: 'updated',
-  });
-});
