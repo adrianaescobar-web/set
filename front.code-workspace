@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "E:\\node-projects\\React\\grade-project\\iot-backend"
 		}
 	],
 	"settings": {}

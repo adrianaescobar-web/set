@@ -4,3 +4,9 @@ out
 yarn-error.log
 yarn.lock
 .npmrc
+.vscode/launch.json
+.vscode/launch1.json
+front.code-workspace
+package-lock.json
+.env
+src/shit/

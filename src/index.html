@@ -8,18 +8,20 @@
 </body>
 
 <script type="text/jsx">
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {AppContainer} from 'react-hot-loader';
-import {BrowserRouter as Router} from 'react-router-dom';
-const render = () => {
-  const App = require('./app').default;
-  ReactDOM.render(<AppContainer><Router><App /></Router></AppContainer>, document.getElementById('App'));
-}
+  import {AppContainer} from 'react-hot-loader';
+  import React from 'react';
+  import ReactDOM from 'react-dom';
+  import { MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
+  import {HashRouter as Router} from 'react-router-dom';
+  const theme = createMuiTheme();
+  const render = () => {
+    const App = require('./app').default;
+    ReactDOM.render(<AppContainer><Router><MuiThemeProvider theme={theme}><App /></MuiThemeProvider></Router></AppContainer>, document.getElementById('App'));
+  }
+  render();
 
-render();
-if (module.hot) {
-  module.hot.accept(render);
-}
+  if (module.hot) {
+    module.hot.accept(render);
+  }
 </script>
 </html>
