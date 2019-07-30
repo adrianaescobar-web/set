@@ -4,6 +4,8 @@ import { ipcRenderer } from 'electron';
 import SocketContext from './socket-context';
 import Login from './modules/login';
 import Dashboard from './modules/dashboard';
+import FileReader from './modules/fileReader';
+import DirExplorer from './modules/dirExplorer';
 import ErrorPage from './modules/error404';
 import Nav from './modules/nav';
 import openSocket from 'socket.io-client';
@@ -17,14 +19,13 @@ class App extends React.Component {
       value: 20,
       boardState: false,
     };
-    ipcRenderer.send('init');
-    console.log("context", this.context);
+    
   }
 
  
   render() {
     const { history } = this.props;
-    const socket = openSocket('http://localhost:3000');
+    const socket = openSocket('https://peaceful-thicket-37969.herokuapp.com/');
     
     return (
       <React.Fragment>
@@ -34,7 +35,9 @@ class App extends React.Component {
           {/* <HashRouter basename="/" /> */}
           <Switch>
             <Route path="/" exact component={Login} />
-            <Route to="/dashboard" component={Dashboard} />
+            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/explorer" component={DirExplorer} />
+            <Route path="/readFile" component={FileReader} />
             <Route component={ErrorPage} />
           </Switch>
         </SocketContext.Provider>

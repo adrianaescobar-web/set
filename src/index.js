@@ -16,8 +16,8 @@ const createWindow = async() => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 500,
-    height: 480,
-    frame: false,
+    height: 520,
+    frame: true,
     center: true,
     backgroundThrottling: true,
     titleBarStyle: 'customButtonsOnHover',
@@ -91,15 +91,24 @@ app
   .commandLine
   .appendSwitch('--inspect-electron')
 
-var initBoard = () => {
+var initBoard = (arg) => {
   let win
   win = new BrowserWindow({
-    resizable: false, width: 300, height: 220,
-    //frame: false,
+    resizable: true, width: 300, height: 220,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
+      additionalArguments: [JSON.stringify(arg)],
     }
   })
+
+  if (isDevMode) {
+    win
+      .webContents
+      .once('dom-ready', () => {
+        win.openDevTools()
+      })
+    }
 
   win.loadURL(`file://${__dirname}/index2.html`)
 
@@ -107,9 +116,15 @@ var initBoard = () => {
     mainWindow
       .webContents
       .send('status', false)
+    
     mainWindow
       .webContents
       .send('isStarted', false)
+    
+    mainWindow
+      .webContents
+      .send('reload')
+    
     ipcMain.removeAllListeners('statusBoard')
     ipcMain.removeAllListeners('data')
   })
@@ -143,5 +158,13 @@ var initBoard = () => {
  */
 
 ipcMain.on('init-board', (event, arg) => {
-  initBoard()
+  console.log("received from front: ",{arg})
+  initBoard(arg)
+})
+
+ipcMain.on('watch', (event, arg) => {
+  console.log("llegue de watch")
+  mainWindow
+      .webContents
+      .send('update')
 })

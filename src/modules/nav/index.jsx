@@ -6,7 +6,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import {ExitToApp} from '@material-ui/icons/Menu';
+import {MenuIcon} from '@material-ui/icons/Menu';
+import {ArrowBack} from '@material-ui/icons/';
 import {withRouter } from 'react-router-dom';
 import SocketContext from '../../socket-context';
 
@@ -19,9 +20,8 @@ const styles = {
     flexGrow: 1,
   },
   menuButton: {
-    
-    marginLeft: -12,
-    marginRight: 20,
+    padding: 5,
+    background: 'rgba(10,0,20,.2)'
   },
 };
 
@@ -36,8 +36,11 @@ function Nav(props) {
           <Typography variant="h6" color="inherit" className={classes.grow} align="center">
             IoT Plattform
           </Typography>
-          {true && <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-          {/* <ExitToApp/> */}
+          {socket.connected && <IconButton className={classes.menuButton} color="inherit" edge="end" aria-label="Menu" onClick={() => {
+                history.push('/');
+                socket.disconnect(true)
+              }}>
+          <ArrowBack/>
           </IconButton>}
         </Toolbar>
       </AppBar>

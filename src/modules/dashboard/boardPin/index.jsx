@@ -55,8 +55,9 @@ class BoardPin extends Component {
       value: null,
       boardState: false,
       sensorConfig: {
-        freq: 25
-      }
+        freq: 2000
+      },
+      buttonState: this.props.buttonState
     };
 
     this.onClick = this
@@ -65,28 +66,40 @@ class BoardPin extends Component {
     this.handleFreqChange = this
       .handleFreqChange
       .bind(this);
+    this.removeElement = this
+      .removeElement
+      .bind(this);
+  }
 
+  removeElement(arry, index) {
+    let newArry = [...arry]
+    newArry.splice(index, 1)
+    return newArry
   }
 
   onClick(event) {
     event.preventDefault();
-    let {id, sensorConfig} = this.props
+    let {id, sensorConfig, buttonState} = this.props
     let {status} = this.state
-    if(!status){
-      sensorConfig[id]={ pin: id, freq: this.state.sensorConfig.freq}
+    if (!status) {
+      sensorConfig.push({pin: id, freq: this.state.sensorConfig.freq})
       this.setState({
-        status: !status,
+        status: !status
       });
-    }else{
-      sensorConfig.filter(function(value){
-          return value.pin !== id
-        
-      })
+    } else {
+      sensorConfig
+        .filter(function (value, index) {
+          if (value.pin === id) {
+            sensorConfig.splice(index, 1)
+          }
+
+        })
       this.setState({
-        status: !status,
+        status: !status
       });
     }
-    
+    ipcRenderer.send('watch');
+
   }
 
   handleFreqChange(event, value) {
@@ -111,10 +124,10 @@ class BoardPin extends Component {
   }
 
   render() {
-    const {classes, sensorsConfig} = this.props;
+    const {classes, sensorsConfig, buttonState} = this.props;
     const {status, type, boardState} = this.state;
     const {freq} = this.state.sensorConfig;
-
+    console.log("props", this.props)
     return (
       <Grid container>
         <Grid item xs={12}>
@@ -124,33 +137,35 @@ class BoardPin extends Component {
               <Grid item xs={12}>
 
                 <CardContent className={classes.root}>
-                  <Typography variant="h5" align="center" className={classes.extra}>
-                    {type === 'analog'
-                      ? 'A'+(this.props.id)
-                      : 'D'+(this.props.id - 5)}
-                  </Typography>
-                  <Typography id="labelSlide" className={classes.slide}>freq: {freq}
-                    ms</Typography>
+                  {type === 'analog'
+                    ? 'A' + (this.props.id)
+                    : 'D' + (this.props.id - 5)}
+                    <hr/>
+                    freq: {freq} ms
                   {boardState
                     ? null
                     : <Slider
                       value={freq}
-                      min={25}
+                      min={500}
                       aria-labelledby="labelSlide"
                       max={5000}
-                      step={25}
+                      step={500}
                       onChange={this.handleFreqChange}
                       disabled={status}/>}
-                      <Paper className={classes.switch} >
+                  <Paper className={classes.switch}>
                     {(boardState && status)
                       ? this.state.value
                       : null}
-                  
-                    </Paper>
+
+                  </Paper>
                 </CardContent>
                 <Grid item xs={12}>
-                  < Switch checked = {status} onChange = {this.onClick} color = "primary" disabled={boardState} />
-                  
+                  <Switch checked={status} 
+                    onChange={this.onClick}
+                    color="primary"
+                    disabled={boardState}
+                  />
+
                 </Grid>
               </Grid>
 
@@ -168,7 +183,7 @@ class BoardPin extends Component {
 
 const NestedComponentWithDashboard = props => (
   <DashBoardContext.Consumer>
-    {sensorsConfig => <BoardPin {...props} sensorConfig={sensorsConfig}/>}
+    {value => <BoardPin {...props} sensorConfig={value.sensorsConfig} buttonState={value.buttonState} />}
   </DashBoardContext.Consumer>
 )
 

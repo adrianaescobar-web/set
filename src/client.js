@@ -3,9 +3,10 @@ const five = require('johnny-five')
 const {ipcRenderer} = require('electron')
 const fs = require('fs')
 const os = require('os')
+const hash = require('hash-generator') 
 
 console.log('Iniciando')
-
+let sensorsArray = JSON.parse(process.argv[17])
 const globalBoard = new five.Board({repl: false})
 let boardState = false
 let portConnected = null
@@ -14,14 +15,15 @@ var datetime = currentdate.getDay() + "-"+currentdate.getMonth()
 + "-" + currentdate.getFullYear() + "@" 
 + currentdate.getHours() + "-" 
 + currentdate.getMinutes() + "-" + currentdate.getSeconds();
-const dirName = `LogSess-${datetime}`
+const dirName = hash(8)
 //console.log("argv:",process.argv)
 
-const folderDir = path.join(os.homedir(),'.iot-duino')
+const folderDir = path.join(os.homedir(), '.iot-duino')
 console.log({folderDir})
 try {
   if (!fs.existsSync(folderDir)){
     fs.mkdirSync(folderDir)
+    
   }
   if (!fs.existsSync(path.join(folderDir, dirName))){
     fs.mkdirSync(path.join(folderDir, dirName))
@@ -30,46 +32,19 @@ try {
   console.error(err)
 }
 
+
+
 globalBoard.on('ready', ()=>{
     boardState = globalBoard.isReady;
     portConnected = globalBoard.port;
     console.log(globalBoard, portConnected);
     
-    let sensors = new five.Sensors(
-      [
-      {
-        pin: "0", 
-        freq: 1000,
-      },
-      {
-        pin: "1",
-        freq: 1000,
-      },
-      {
-        pin: "2",
-        freq: 1000,
-      },
-      {
-        pin: "3",
-        freq: 1000,
-        type: 'analog',
-      },
-      {
-        pin: "4",
-        freq: 1000,
-        type: 'analog',
-      },
-      {
-        pin: "5",
-        freq: 1000,
-        type: 'analog',
-      },
-      ]);
+    let sensors = new five.Sensors(sensorsArray);
     
     sensors.map((sen,index) => {
       sen.on('data', (data)=>{
         console.log('sensor'+sen.pin, data);
-        let obj = { sensorPin: parseInt(sen.pin), data, date: currentdate.toLocaleString('en-US',{
+        let obj = { sensorPin: parseInt(sen.pin), data, date: Date().toLocaleString('en-US',{
           day: 'numeric',
           month: 'numeric',
           year: 'numeric',
