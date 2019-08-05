@@ -25,6 +25,8 @@ class StateBar extends React.Component {
     const styles = {
       padding: '0px',
       margin: '0px',
+      heigth: '5%',
+      backgroundColor: 'black'
     };
     const styles1 = {
       padding: '0px',

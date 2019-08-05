@@ -16,7 +16,12 @@ import {Slider} from '@material-ui/lab';
 import {ipcRenderer} from 'electron';
 import DashBoardContext from '../../../dashboard-context';
 const styles = {
-  card: {},
+  card: {
+    margin: '1% 0',
+    height: '97%',
+    boxSizing: 'content-box',
+    textAlign: 'center',
+  },
   root: {
     padding: 0,
     margin: 0
@@ -37,13 +42,41 @@ const styles = {
     padding: 10,
     fontSize: 8
   },
-  switch: {
+  paperVal: {
     marginTop: 8,
     marginLeft: 5,
     marginRight: 5,
-    height: 20,
+    height: '50%',
+    width: '80%',
     background: 'linear-gradient(to right top, #f6f6f6, #f5f8fb, #f0fcfd, #f0fff8, #fafff0)'
-  }
+  },
+  headerSensor:{
+    display: 'flex',
+    justifyContent:'space-around',
+    alignItems: 'center',
+    height: '20%',
+    background: 'linear-gradient(15deg, #3093B8 20%, #2DACAD 100%)',
+  },
+  freqContainer:{
+    display: 'flex',
+    justifyContent:'space-around',
+    flexDirection: 'column',
+    alignItems: 'center',
+    height: '25%',
+    fontSize: '.7em',
+  },
+  valContainer: {
+    display: 'flex',
+    justifyContent:'space-around',
+    alignItems: 'center',
+    height: '30%',
+  },
+  switchContainer: {
+    height: '20%',
+  },
+  switch:{
+
+  },
 };
 
 class BoardPin extends Component {
@@ -129,53 +162,37 @@ class BoardPin extends Component {
     const {freq} = this.state.sensorConfig;
     console.log("props", this.props)
     return (
-      <Grid container>
-        <Grid item xs={12}>
           <Card className={classes.card}>
 
-            <Grid container>
-              <Grid item xs={12}>
-
-                <CardContent className={classes.root}>
-                  {type === 'analog'
-                    ? 'A' + (this.props.id)
-                    : 'D' + (this.props.id - 5)}
-                    <hr/>
-                    freq: {freq} ms
-                  {boardState
+                  <div className={classes.headerSensor}>{type === 'analog'
+                  ? 'A' + (this.props.id)
+                  : 'D' + (this.props.id - 5)}
+                  </div>
+                    <div className={classes.freqContainer}>freq: {freq} ms
+                    {boardState
                     ? null
                     : <Slider
-                      value={freq}
-                      min={500}
-                      aria-labelledby="labelSlide"
-                      max={5000}
-                      step={500}
-                      onChange={this.handleFreqChange}
-                      disabled={status}/>}
-                  <Paper className={classes.switch}>
-                    {(boardState && status)
-                      ? this.state.value
-                      : null}
-
-                  </Paper>
-                </CardContent>
-                <Grid item xs={12}>
-                  <Switch checked={status} 
-                    onChange={this.onClick}
-                    color="primary"
-                    disabled={boardState}
-                  />
-
-                </Grid>
-              </Grid>
-
-            </Grid>
-
+                    value={freq}
+                    min={500}
+                    aria-labelledby="labelSlide"
+                    max={5000}
+                    step={500}
+                    onChange={this.handleFreqChange}
+                    disabled={status}/>}</div>
+                  
+                  <div className={classes.valContainer}><Paper className={classes.paperVal}>
+                  {(boardState && status)
+                  ? this.state.value
+                  : null}
+                  
+                  </Paper></div>
+               
+                  <div className={classes.switchContainer}><Switch className={classes.switch} checked={status}
+                  onChange={this.onClick}
+                  color="primary"
+                  disabled={boardState}
+                  /></div>
           </Card>
-
-        </Grid>
-
-      </Grid>
 
     );
   }

@@ -1,5 +1,5 @@
 import React from "react";
-import {withStyles} from '@material-ui/core/';
+import {withStyles, Button} from '@material-ui/core/';
 
 const os = require('os');
 const path = require('path');
@@ -27,10 +27,22 @@ const styles = {
 	  background: '#d5e8eb',
 	  border: 0,
 	  color: '#295961',
-	  height: '350px',
+	  height: '76vh',
 	  padding: '10px',
 	  overflowY: 'scroll'
-	}
+	},
+	button:{
+		background: 'linear-gradient(to top, rgba(53,45,173,.8) 30%, rgba(48,75,184,.8) 100%)',
+		'&:hover':{
+		  background: 'linear-gradient(to top, rgba(53,45,173,.6) 30%, rgba(48,75,184,.6) 100%)',
+		}
+	  },
+	  buttonContainer:{
+		display: 'flex',
+		justifyContent: 'center',
+		margin: '1%',
+	  }
+
   };
 
 class FileReader extends React.Component {
@@ -74,10 +86,10 @@ class FileReader extends React.Component {
 						return <span key={key}>{item}<br /></span>;
 					})}
 				</div>
-				<div>
-					<button onClick={
+				<div className={classes.buttonContainer}>
+					<Button  className={classes.button} onClick={
 						()=>(this.props.history.goBack())
-					}>Back</button>
+					}>Back to explorer</Button>
 				</div>
 			</div>
 		);

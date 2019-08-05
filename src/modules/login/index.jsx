@@ -103,8 +103,8 @@ class Login extends React.Component {
                 </Grid>
                 
                 <Grid container justify="center" style={{ marginTop: '10px' }}>
-                    <Button className={classes.button}  variant="outlined" color="primary" style={{ textTransform: "none" }} onClick={this.handleSubmit}>Login</Button>
-                    <Button className={classes.button}  variant="outlined" color="primary" style={{ textTransform: "none" }} onClick={()=>{history.push('/Dashboard')}}>Pass</Button>
+                    <Button className={classes.button}  variant="outlined" color="primary" style={{ textTransform: "none" }} onClick={this.handleSubmit}>Sign in</Button>
+                    <Button className={classes.button}  variant="outlined" color="primary" style={{ textTransform: "none" }} onClick={()=>{history.push('/Dashboard')}}>Local use</Button>
                 </Grid>
             </div>
         </Paper>

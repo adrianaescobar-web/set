@@ -23,19 +23,16 @@ const styles = {
   element: {
     background: '#f1f1f1',
     '&:hover': {
-      background: '#0F0'
+      background: 'linear-gradient(15deg, #3093B8 20%, #2DACAD 100%)',
+      filter: 'alpha(opacity=50)',
     }
   },
 
   root: {
-    background: 'linear-gradient(45deg, #DEA 30%, #AED 90%)',
     border: 0,
     borderRadius: 3,
-    boxShadow: '0 3px 5px 2px #AED',
     color: 'white',
-    height: 240,
-    padding: '10px',
-    overflowY: 'scroll'
+    margin: '2%',
   }
 };
 
@@ -49,13 +46,29 @@ class ListDirectories extends Component {
   }
 
   loadFolders() {
+    
     const folderDir = path.join(os.homedir(), '.iot-duino');
+    try {
+      if (!fs.existsSync(folderDir)){
+        fs.mkdirSync(folderDir)
+        
+      }
+    } catch (err) {
+      console.error(err)
+    }
 
-    let contentFolder = fs.readdirSync(folderDir, (err, files) => {
-      console.log("contemnndio", {files})
-
+    let contentFolder = fs.readdirSync(folderDir, (err, data) => {
+      if (err) throw err
+      return data
     });
-    let folders = contentFolder.map((val, ind) => {
+    let folders=[]
+    
+    if(contentFolder!=undefined){
+    folders = contentFolder.map((val, ind) => {
+      let options = { year: 'numeric', month: 'numeric', day: 'numeric', timeZoneName: 'short' }
+      let dirStats=fs.statSync(path.join(folderDir, val))
+      let dirCreationDate= new Date(dirStats.birthtime).toLocaleTimeString('en-US', options)
+      
       return (
         <ListItem
           className={this.props.classes.element}
@@ -68,11 +81,11 @@ class ListDirectories extends Component {
               <FolderIcon/>
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={val} secondary="Jan 7, 2014"/>
+          <ListItemText primary={val} secondary={dirCreationDate}/>
         </ListItem>
       )
 
-    })
+    })}
     return folders
   }
   componentDidMount() {

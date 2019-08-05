@@ -5,9 +5,10 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
-  withStyles
+  withStyles,
+  Button
 } from '@material-ui/core/';
-import FolderIcon from '@material-ui/icons/Folder';
+import FileIcon from '@material-ui/icons/insertDriveFile';
 import {ipcRenderer} from 'electron'
 
 const os = require('os');
@@ -29,9 +30,20 @@ const styles = {
       borderRadius: 3,
       boxShadow: '0 3px 5px 2px #AED',
       color: 'white',
-      height: 240,
+      height: '78vh',
       padding: '10px',
       overflowY: 'scroll'
+    },
+    button:{
+      background: 'linear-gradient(to top, rgba(53,45,173,.8) 30%, rgba(48,75,184,.8) 100%)',
+      '&:hover':{
+        background: 'linear-gradient(to top, rgba(53,45,173,.6) 30%, rgba(48,75,184,.6) 100%)',
+      }
+    },
+    buttonContainer:{
+      display: 'flex',
+      justifyContent: 'center',
+      margin: '1%',
     }
   };
 
@@ -53,7 +65,11 @@ class DirExplorer extends Component {
     })
 
     let files = contentFolder.map((val, ind) => {
-      console.log("props", this.props.classes)
+      let options = { year: 'numeric', month: 'numeric', day: 'numeric', timeZoneName: 'short' }
+      let dirStats=fs.statSync(path.join(documentos, val))
+      let fileCreationDate= new Date(dirStats.birthtime).toLocaleTimeString('en-US', options)
+  
+
       return (
         <ListItem
           className={this.props.classes.element}
@@ -62,10 +78,10 @@ class DirExplorer extends Component {
               this.props.history.push('/readFile'+nameFolder+'/'+event.currentTarget.querySelector('span').textContent))}>
           <ListItemAvatar>
             <Avatar>
-              <FolderIcon />
+              <FileIcon />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={val} secondary="Jan 7, 2014"/>
+          <ListItemText primary={val} secondary={fileCreationDate}/>
         </ListItem>
       )
 
@@ -81,11 +97,13 @@ class DirExplorer extends Component {
         <List className={this.props.classes.root}>
           {this.state.fileList}
         </List>
-        <button onClick={() => {
+        <div className={this.props.classes.buttonContainer}>
+        <Button className={this.props.classes.button} onClick={() => {
           history.goBack()
         }}>
-          back
-        </button>
+          back to dashboard
+        </Button>
+        </div>
       </div>
 
     );

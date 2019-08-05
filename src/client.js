@@ -19,18 +19,7 @@ const dirName = hash(8)
 //console.log("argv:",process.argv)
 
 const folderDir = path.join(os.homedir(), '.iot-duino')
-console.log({folderDir})
-try {
-  if (!fs.existsSync(folderDir)){
-    fs.mkdirSync(folderDir)
-    
-  }
-  if (!fs.existsSync(path.join(folderDir, dirName))){
-    fs.mkdirSync(path.join(folderDir, dirName))
-  }
-} catch (err) {
-  console.error(err)
-}
+
 
 
 
@@ -38,7 +27,18 @@ globalBoard.on('ready', ()=>{
     boardState = globalBoard.isReady;
     portConnected = globalBoard.port;
     console.log(globalBoard, portConnected);
-    
+    console.log({folderDir})
+    try {
+      if (!fs.existsSync(folderDir)){
+        fs.mkdirSync(folderDir)
+        
+      }
+      if (!fs.existsSync(path.join(folderDir, dirName))){
+        fs.mkdirSync(path.join(folderDir, dirName))
+      }
+    } catch (err) {
+      console.error(err)
+    }
     let sensors = new five.Sensors(sensorsArray);
     
     sensors.map((sen,index) => {

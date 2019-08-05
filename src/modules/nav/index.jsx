@@ -14,13 +14,18 @@ import SocketContext from '../../socket-context';
 const styles = {
   root: {
     flexGrow: 1,
-    background: 'linear-gradient(15deg, #13547a 0%, #80d0c7 100%)',
+    background: 'linear-gradient(15deg, #352DAD 0%, #3093B8 100%)',
+    height: '10%',
+    fontFamily: 'Roboto',
+    fontSize: '1.5em',
+    justifyContent: 'center',
   },
   grow: {
     flexGrow: 1,
+    fontSize: '1em',
+    height: '10%',
   },
   menuButton: {
-    padding: 5,
     background: 'rgba(10,0,20,.2)'
   },
 };
@@ -29,9 +34,8 @@ function Nav(props) {
   const { classes, history, socket } = props;
    
    return (
-    <div>
-     <AppBar position="static" >
-        <Toolbar className={classes.root}>
+     <AppBar position="static" className={classes.root}>
+        <Toolbar >
           
           <Typography variant="h6" color="inherit" className={classes.grow} align="center">
             IoT Plattform
@@ -44,7 +48,6 @@ function Nav(props) {
           </IconButton>}
         </Toolbar>
       </AppBar>
-    </div>
   )
 }
 

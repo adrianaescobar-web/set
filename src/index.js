@@ -15,9 +15,12 @@ if (isDevMode)
 const createWindow = async() => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 500,
-    height: 520,
-    frame: true,
+    width: 663,
+    height: 530,
+    minHeight: 530,
+    minWidth: 663,
+    background: '#2DACAD',
+    frame: false,
     center: true,
     backgroundThrottling: true,
     titleBarStyle: 'customButtonsOnHover',
@@ -96,6 +99,9 @@ var initBoard = (arg) => {
   win = new BrowserWindow({
     resizable: true, width: 300, height: 220,
     frame: false,
+    parent: mainWindow, 
+    modal: false, 
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       additionalArguments: [JSON.stringify(arg)],
@@ -127,12 +133,19 @@ var initBoard = (arg) => {
     
     ipcMain.removeAllListeners('statusBoard')
     ipcMain.removeAllListeners('data')
+    ipcMain.removeAllListeners('close-board')
+    
+    win = null
   })
 
+  
   /**
    * Gestion del estdo de la tarjeta
    */
-
+  ipcMain.on('close-board', (event) => {
+    console.log('close now')
+    win.close()
+  })
   ipcMain.on('statusBoard', (event, boardState) => {
     console.log("Estado de la tarjeta", boardState)
     mainWindow
@@ -161,6 +174,7 @@ ipcMain.on('init-board', (event, arg) => {
   console.log("received from front: ",{arg})
   initBoard(arg)
 })
+
 
 ipcMain.on('watch', (event, arg) => {
   console.log("llegue de watch")
